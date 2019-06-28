@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LibraryAPI.EF_DBLayer;
 using LibraryAPI.Models;
+using LibraryAPI.Models.Interfaces;
+using LibraryAPI.Controllers.DTO;
+using AutoMapper;
 
 namespace LibraryAPI.Controllers
 {
@@ -14,18 +17,21 @@ namespace LibraryAPI.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly AuthorUnitOfWork AuthorUnitOfWork;
+        private readonly IMapper Mapper;
 
-        public AuthorsController(ApplicationDbContext context)
+        public AuthorsController(AuthorUnitOfWork unit, IMapper mapper)
         {
-            _context = context;
+            AuthorUnitOfWork = unit;
+            Mapper = mapper;
         }
 
         // GET: api/Authors
         [HttpGet]
-        public IEnumerable<Author> GetAuthors()
+        public async Task<ActionResult<AuthorDTO[]>> GetAuthors()
         {
-            return _context.Authors.Include(a => a.Address);
+            var authors = await AuthorUnitOfWork.GetAllAuthors().ToArrayAsync();
+            return Mapper.Map<AuthorDTO[]>(authors);
         }
 
         // GET: api/Authors/5
@@ -37,7 +43,7 @@ namespace LibraryAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var author = await _context.Authors.FindAsync(id);
+            var author = await AuthorUnitOfWork.GetAuthorById(id);
 
             if (author == null)
             {
@@ -47,15 +53,14 @@ namespace LibraryAPI.Controllers
             return Ok(author);
         }
 
-        public void UpdateAddress(Address address)
+        public async Task UpdateAddress(Address address)
         {
-            _context.Update(address);
-            _context.SaveChanges();
+            await AuthorUnitOfWork.UpdateAddress(address);
         }
 
         // PUT: api/Authors/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor([FromRoute] int id, [FromBody] Author author)
+        public async Task<ActionResult<AuthorDTO>> PutAuthor([FromRoute] int id, [FromBody] AuthorDTO author)
         {
             if (!ModelState.IsValid)
             {
@@ -67,15 +72,17 @@ namespace LibraryAPI.Controllers
                 return BadRequest();
             }
 
-            UpdateAddress(author.Address);
-            
-            //_context.Entry(author).State = EntityState.Modified;
-            _context.Update(author);
+            await UpdateAddress(author.Address);
+            var oldAuthor = await AuthorUnitOfWork.GetAuthorById(id);
+            Mapper.Map(author, oldAuthor);
 
             try
             {
-                await _context.SaveChangesAsync();
-            }
+                    if (await AuthorUnitOfWork.SaveChangesAsync())
+                    {
+                        return Mapper.Map<AuthorDTO>(oldAuthor);
+                    }
+                }
             catch (DbUpdateConcurrencyException)
             {
                 if (!AuthorExists(id))
@@ -93,15 +100,15 @@ namespace LibraryAPI.Controllers
 
         // POST: api/Authors
         [HttpPost]
-        public async Task<IActionResult> PostAuthor([FromBody] Author author)
+        public async Task<ActionResult<AuthorDTO>> PostAuthor([FromBody] AuthorDTO authorDTO)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
+            var author = Mapper.Map<Author>(authorDTO);
+            await AuthorUnitOfWork.AddAuthorAsync(author);
 
             return CreatedAtAction("GetAuthor", new { id = author.AuthorId }, author);
         }
@@ -115,21 +122,19 @@ namespace LibraryAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var author = await _context.Authors.FindAsync(id);
+            var author = await AuthorUnitOfWork.GetAuthorById(id);
             if (author == null)
             {
                 return NotFound();
             }
 
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
-
+            await AuthorUnitOfWork.DeleteAuthor(author);
             return Ok(author);
         }
 
         private bool AuthorExists(int id)
         {
-            return _context.Authors.Any(e => e.AuthorId == id);
+            return AuthorUnitOfWork.AuthorExist(id);
         }
     }
 }

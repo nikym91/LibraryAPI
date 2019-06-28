@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
+using LibraryAPI.Models.Interfaces;
 
 namespace LibraryAPI
 {
@@ -36,7 +37,10 @@ namespace LibraryAPI
                 options.UseSqlServer(
                     Configuration["Data:Library:ConnectionString"]));
 
-            //services.AddTransient<IUserUnitOfWork, EFUserUnitOfWork>();
+            services.AddTransient<BookUnitOfWork, EFBookUnitOfWork>();
+            services.AddTransient<BookRepository, EFBookRepository>();
+            services.AddTransient<AuthorUnitOfWork, EFAuthorUnitOfWork>();
+            services.AddTransient<AuthorRepository, EFAuthorRepository>();
             services.AddAutoMapper();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

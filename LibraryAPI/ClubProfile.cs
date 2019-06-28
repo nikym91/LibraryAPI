@@ -14,6 +14,9 @@ namespace LibraryAPI
         {
             this.CreateMap<Book, BookDTO>()
                 .ReverseMap();
+
+            this.CreateMap<Author, AuthorDTO>()
+                .ReverseMap();
         }
     }
 }

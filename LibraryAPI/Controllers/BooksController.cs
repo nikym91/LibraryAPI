@@ -9,6 +9,7 @@ using LibraryAPI.EF_DBLayer;
 using LibraryAPI.Models;
 using AutoMapper;
 using LibraryAPI.Controllers.DTO;
+using LibraryAPI.Models.Interfaces;
 
 namespace LibraryAPI.Controllers
 {
@@ -16,13 +17,12 @@ namespace LibraryAPI.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly BookUnitOfWork bookUnitOfWork;
         private readonly IMapper Mapper;
 
-        public IQueryable<Book> Books => _context.Books;
-        public BooksController(ApplicationDbContext context, IMapper mapper)
+        public BooksController(BookUnitOfWork b, IMapper mapper)
         {
-            _context = context;
+            bookUnitOfWork = b;
             Mapper = mapper;
         }
 
@@ -30,32 +30,32 @@ namespace LibraryAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<BookDTO[]>> GetBooks()
         {
-            var books = await Books.ToArrayAsync();
+            var books = await bookUnitOfWork.GetAllBooks().ToArrayAsync();
             return Mapper.Map<BookDTO[]>(books);
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetBook([FromRoute] int id)
+        public async Task<ActionResult<BookDTO[]>> GetBook([FromRoute] int id)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book = await bookUnitOfWork.GetBookById(id);
 
             if (book == null)
             {
                 return NotFound();
             }
 
-            return Ok(book);
+            return Mapper.Map<BookDTO[]>(book);
         }
 
         // PUT: api/Books/5
         [HttpPut("{bookId}")]
-        public async Task<IActionResult> Put([FromRoute] int bookId, [FromBody] Book book)
+        public async Task<ActionResult<BookDTO>> Put([FromRoute] int bookId, [FromBody] BookDTO book)
         {
             if (!ModelState.IsValid)
             {
@@ -67,11 +67,15 @@ namespace LibraryAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Update(book);
-
+            var oldBook = await bookUnitOfWork.GetBookById(bookId);
+            Mapper.Map(book, oldBook);
             try
             {
-                await _context.SaveChangesAsync();
+                if (await bookUnitOfWork.SaveChangesAsync())
+                {
+                    return Mapper.Map<BookDTO>(oldBook);
+                }
+                
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -84,22 +88,21 @@ namespace LibraryAPI.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
+            return BadRequest();
         }
 
         // POST: api/Books
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Book book)
+        public async Task<ActionResult<BookDTO>> Post([FromBody] BookDTO bookDTO)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
-
+            var book = Mapper.Map<Book>(bookDTO);
+            await bookUnitOfWork.AddBookAsync(book);
+           
             return CreatedAtAction("GetBook", new { id = book.BookId }, book);
         }
 
@@ -112,21 +115,20 @@ namespace LibraryAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book = await bookUnitOfWork.GetBookById(id);
             if (book == null)
             {
                 return NotFound();
             }
 
-            _context.Books.Remove(book);
-            await _context.SaveChangesAsync();
+            await bookUnitOfWork.DeleteBook(book);
 
             return Ok(book);
         }
 
         private bool BookExists(int id)
         {
-            return _context.Books.Any(e => e.BookId == id);
+            return bookUnitOfWork.BookExist(id);
         }
     }
 }
