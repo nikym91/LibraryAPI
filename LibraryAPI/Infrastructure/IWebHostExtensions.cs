@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LibraryAPI.Infrastructor
+namespace LibraryAPI.Infrastructure
 {
     public static class IWebHostExtensions
     {

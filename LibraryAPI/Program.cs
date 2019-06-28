@@ -1,4 +1,4 @@
-﻿using LibraryAPI.Infrastructor;
+﻿using LibraryAPI.Infrastructure;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
