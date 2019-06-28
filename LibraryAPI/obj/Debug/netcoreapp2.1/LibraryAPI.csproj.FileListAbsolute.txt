@@ -1,0 +1,14 @@
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\bin\Debug\netcoreapp2.1\LibraryAPI.deps.json
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\bin\Debug\netcoreapp2.1\LibraryAPI.runtimeconfig.json
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\bin\Debug\netcoreapp2.1\LibraryAPI.runtimeconfig.dev.json
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\bin\Debug\netcoreapp2.1\LibraryAPI.dll
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\bin\Debug\netcoreapp2.1\LibraryAPI.pdb
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.csprojAssemblyReference.cache
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.csproj.CoreCompileInputs.cache
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.RazorAssemblyInfo.cache
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.RazorAssemblyInfo.cs
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.AssemblyInfoInputs.cache
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.AssemblyInfo.cs
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.RazorTargetAssemblyInfo.cache
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.dll
+C:\Users\magi\source\repos\LibraryAPI\LibraryAPI\obj\Debug\netcoreapp2.1\LibraryAPI.pdb
